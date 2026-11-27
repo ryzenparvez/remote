@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Furqan Cloud Remote Access</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src ws: wss:; media-src 'self' blob:; img-src 'self' data:">
+<link rel="stylesheet" href="node_modules/@fortawesome/fontawesome-free/css/all.min.css">
+<link rel="stylesheet" href="node_modules/@fontsource/inter/400.css">
+<link rel="stylesheet" href="node_modules/@fontsource/inter/500.css">
+<link rel="stylesheet" href="node_modules/@fontsource/inter/600.css">
+<link rel="stylesheet" href="node_modules/@fontsource/inter/700.css">
+<style>
+:root{--bg:#FFFFFF;--side:#F3FAEA;--main:#FFFFFF;--card:#FFFFFF;--text:#0C342C;--muted:#5F7F73;--line:#E1EDD6;--input:#EFF6E8;--purple:#076653;--purple-d:#0C342C;--soft:#E2FBCE;--on:#FFFFFF;--ink:#06231D;--c-cdn:#3E9A52;--warn:#9A6700;--bad:#C0392B;--hint-bg:#FFFDDE;--hint-tx:#5E5A06;--shadow:0 6px 24px rgba(7,102,83,.08);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14142a;--side:#181833;--main:#1b1b3a;--card:#222247;--text:#f0f0ff;--muted:#9a9cc4;--line:#2e2e5a;--input:#2c2c58;--purple:#E3EF26;--purple-d:#C9D81C;--soft:#2c2c58;--on:#06231D;--c-cdn:#7CCB5A;--hint-bg:rgba(227,239,38,.12);--hint-tx:#E3EF26;--warn:#F5C542;--bad:#FF8A80;--shadow:0 6px 24px rgba(0,0,0,.3);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14142a;--side:#181833;--main:#1b1b3a;--card:#222247;--text:#f0f0ff;--muted:#9a9cc4;--line:#2e2e5a;--input:#2c2c58;--purple:#E3EF26;--purple-d:#C9D81C;--soft:#2c2c58;--on:#06231D;--c-cdn:#7CCB5A;--hint-bg:rgba(227,239,38,.12);--hint-tx:#E3EF26;--warn:#F5C542;--bad:#FF8A80;--shadow:0 6px 24px rgba(0,0,0,.3);color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,"Segoe UI","Hind Siliguri","Noto Sans Bengali",Arial,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input{font-family:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--purple);outline-offset:2px}
+#shell{display:grid;grid-template-columns:240px minmax(0,1fr);height:100%}
+aside{background:var(--side);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:24px 16px;gap:18px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:38px;height:38px;border-radius:11px;background:var(--purple);color:var(--on);display:grid;place-items:center;font-size:17px;flex:none}
+.brand b{font-size:16px;font-weight:600;line-height:1.2;display:block}.brand small{font-size:11px;font-weight:400;color:var(--muted)}
+nav{display:flex;flex-direction:column;gap:3px}
+nav button{display:flex;align-items:center;gap:11px;border:0;background:none;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;text-align:left;transition:background .15s,color .15s}
+nav button i{width:20px;text-align:center;font-size:15px}
+nav button:hover{background:var(--soft);color:var(--purple)}
+nav button.on{background:var(--purple);color:var(--on);font-weight:600}
+.me{margin-top:auto;padding:12px;border-radius:12px;background:var(--soft);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--purple)}
+.av{width:30px;height:30px;border-radius:50%;background:var(--purple);color:var(--on);display:grid;place-items:center;font-size:13px}
+.net{margin-left:auto;font-size:11px;display:flex;align-items:center;gap:5px;color:var(--muted);font-weight:500}
+main{padding:28px 32px;overflow:auto;background:var(--main);min-width:0}
+.page{display:none;max-width:900px}.page.on{display:block;animation:fade .28s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h2{font-size:18px;margin:0 0 14px;font-weight:600;letter-spacing:-.2px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:30px}
+.tile,.dev,.row{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.tile{padding:16px 18px}
+.tile small{color:var(--muted);font-size:12.5px;display:block;margin-bottom:6px}
+.tile .v{display:flex;align-items:center;gap:2px;font-size:24px;font-weight:700}
+.tile .v span{flex:1;white-space:nowrap}
+.ib{background:none;border:0;color:var(--muted);cursor:pointer;font-size:15px;padding:4px 6px}.ib:hover{color:var(--purple)}
+.ctl{display:flex;gap:10px}
+.inp{flex:1;position:relative;background:var(--input);border:1px solid var(--line);border-radius:10px;height:46px;display:flex;align-items:center;padding:0 6px 0 14px;gap:2px}
+.inp input{flex:1;border:0;outline:0;background:transparent;font-size:14px;font-weight:500;min-width:0}
+.inp input::placeholder,.row input::placeholder{color:var(--muted);opacity:.85}
+.inp.pw{margin-top:12px}.inp.pw>i{color:var(--muted);font-size:13px;margin-right:8px}
+.inp:focus-within{border-color:var(--purple)}
+.btn{height:46px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:0;padding:0 24px}
+.btn.primary{background:var(--purple);color:var(--on)}.btn.primary:hover{background:var(--purple-d)}
+.btn.ghost{background:var(--soft);color:var(--purple);border:1px solid var(--line);padding:0 16px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.danger{background:var(--bad);color:var(--on);flex:1}
+.st{margin-top:16px;font-size:13px;display:flex;align-items:center;gap:8px;color:var(--muted)}
+.st+.st{margin-top:8px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted);display:inline-block}
+.dot[data-s=on]{background:var(--c-cdn)}.dot[data-s=err]{background:var(--bad)}.dot[data-s=wait]{background:var(--warn)}
+#connDot{color:var(--muted)}#connDot[data-s=on]{color:var(--c-cdn)}#connDot[data-s=err]{color:var(--bad)}#connDot[data-s=wait]{color:var(--warn)}
+#dd{display:none;position:absolute;top:50px;left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);z-index:20;overflow:hidden}
+#dd.show{display:block}
+#dd div{padding:10px 14px;font-size:14px;cursor:pointer}#dd div:hover{background:var(--soft);color:var(--purple)}
+.dev{padding:10px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;font-weight:600}
+.dev i.fa-desktop{color:var(--purple)}.dev span{flex:1}
+.mini{background:var(--purple);color:var(--on);border:0;border-radius:8px;padding:6px 14px;font-weight:600;cursor:pointer;font-size:12px}
+.mini:hover{background:var(--purple-d)}
+.empty{color:var(--muted);font-size:13px}
+.row{padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;font-size:13px}
+.row>i{color:var(--purple)}
+.row input{flex:1;border:1px solid var(--line);background:var(--input);border-radius:8px;padding:8px 10px;font-size:13px;min-width:0;outline:0}.row input:focus{border-color:var(--purple)}
+.row b{flex:1}.row code{color:var(--muted);font-size:12px}
+.overlay{position:fixed;inset:0;background:rgba(6,35,29,.55);display:none;align-items:center;justify-content:center;z-index:50}
+.overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;width:min(400px,90%);text-align:center;box-shadow:var(--shadow)}
+.modal h3{margin:0 0 10px;font-size:18px}.modal p{color:var(--muted);margin:0 0 20px;font-size:14px}
+.modal .r{display:flex;gap:10px}
+#banner{position:fixed;top:0;left:0;right:0;background:var(--bad);color:var(--on);padding:9px 14px;display:none;align-items:center;justify-content:center;gap:12px;z-index:40;font-weight:600;font-size:13px}
+#banner.show{display:flex}
+#banner button{background:var(--on);color:var(--bad);border:0;border-radius:8px;padding:5px 12px;font-weight:700;cursor:pointer}
+#viewer{position:fixed;inset:0;background:#000;display:none;z-index:30}
+#viewer.show{display:block}
+#video{width:100%;height:100%;object-fit:contain;background:#000}
+#vbar{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:rgba(6,35,29,.88);color:#fff;border-radius:24px;padding:6px 8px 6px 18px;display:flex;gap:14px;align-items:center;font-size:13px;z-index:35;opacity:.25;transition:opacity .2s}
+#vbar:hover{opacity:1}
+#vbar button{background:var(--bad);color:var(--on);border:0;border-radius:16px;padding:6px 14px;cursor:pointer;font-weight:600}
+</style>
+</head>
+<body>
+<div id="banner"><i class="fa-solid fa-triangle-exclamation"></i><span id="bannerText"></span><button id="bannerStop">Disconnect</button></div>
+<div id="shell">
+<aside>
+  <div class="brand"><div class="logo"><i class="fa-solid fa-desktop"></i></div><div><b>Furqan Cloud</b><small>Remote Access</small></div></div>
+  <nav>
+    <button class="on" data-p="remote"><i class="fa-solid fa-arrow-right-arrow-left"></i>Remote Control</button>
+    <button data-p="list"><i class="fa-solid fa-display"></i>Device List</button>
+    <button data-p="settings"><i class="fa-solid fa-gear"></i>Settings</button>
+  </nav>
+  <div class="me"><div class="av"><i class="fa-solid fa-user"></i></div><span>This PC</span><span class="net"><span class="dot" id="netDot"></span><span id="netText">Offline</span></span></div>
+</aside>
+<main>
+  <section class="page on" id="pg-remote">
+    <h2>This Device</h2>
+    <div class="tiles">
+      <div class="tile"><small>Device ID</small><div class="v"><span id="myId">--- --- ---</span><button class="ib" id="copyId" title="Copy"><i class="fa-regular fa-copy"></i></button></div></div>
+      <div class="tile"><small>Temporary Password</small><div class="v"><span id="myPass">*** ***</span><button class="ib" id="eyeBtn" title="Show / hide"><i id="eye" class="fa-regular fa-eye-slash"></i></button><button class="ib" id="copyPass" title="Copy"><i class="fa-regular fa-copy"></i></button><button class="ib" id="newPass" title="New password"><i class="fa-solid fa-pen"></i></button></div></div>
+    </div>
+    <h2>Control Remote Device</h2>
+    <div class="ctl">
+      <div class="inp"><input id="partnerId" placeholder="Enter the remote device ID" maxlength="11" inputmode="numeric"><button class="ib" id="star" title="Save device"><i class="fa-regular fa-star"></i></button><button class="ib" id="chev" title="Saved devices"><i class="fa-solid fa-chevron-down"></i></button><div id="dd"></div></div>
+      <button class="btn primary" id="btnConnect">Connect</button>
+      <button class="btn ghost" id="btnDisconnect" disabled title="Disconnect"><i class="fa-solid fa-power-off"></i></button>
+    </div>
+    <div class="inp pw"><i class="fa-solid fa-lock"></i><input id="partnerPass" type="password" placeholder="Remote device password"></div>
+    <div class="st"><i class="fa-solid fa-shield-halved" id="connDot"></i><span id="connStatus">Ready to connect (End-to-end encryption)</span></div>
+    <div class="st"><span class="dot" id="hostDot"></span><span id="hostStatus">Connecting to server…</span></div>
+  </section>
+  <section class="page" id="pg-list"><h2>Device List</h2><div id="devList"></div></section>
+  <section class="page" id="pg-settings"><h2>Settings</h2>
+    <div class="row"><i class="fa-solid fa-server"></i><input id="setServerInp" placeholder="ws://SERVER_IP:8080"><button class="mini" id="saveServer">Save</button></div>
+    <div class="row"><i class="fa-solid fa-key"></i><b>Temporary password</b><button class="mini" id="newPass2">New password</button></div>
+    <div class="row"><i class="fa-solid fa-lock"></i><b>Encryption</b><code>WebRTC (DTLS-SRTP)</code></div>
+    <div class="row"><i class="fa-solid fa-circle-info"></i><b>Version</b><code>1.0</code></div>
+  </section>
+</main>
+</div>
+<div class="overlay" id="modal"><div class="modal"><h3>Remote connection request</h3><p id="modalText"></p><div class="r"><button class="btn danger" id="btnReject">Reject</button><button class="btn primary" id="btnAccept" style="flex:1">Accept</button></div></div></div>
+<div id="viewer"><video id="video" autoplay playsinline muted></video></div>
+<div id="vbar" style="display:none"><span>Connected</span><button id="viewerStop">Disconnect</button></div>
+<script src="ui.js"></script>
+<script src="renderer.js"></script>
+</body>
+</html>
